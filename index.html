@@ -1408,17 +1408,25 @@ BLACKS OUT.
     for(var i=0;i<sampleTabs.length;i++){ if(sampleTabs[i].getAttribute('data-sample-tab')===key){ activateSampleTab(sampleTabs[i], focus); return sampleTabs[i]; } }
     return null;
   }
+  function setSampleHash(key){
+    var hash='#samples-'+key;
+    if(window.location.hash!==hash && window.history && history.pushState){
+      try{ history.pushState(null,'',hash); }catch(e){}
+    }
+  }
   sampleTabs.forEach(function(tab,idx){
-    tab.addEventListener('click',function(){ activateSampleTab(tab,false); });
+    tab.addEventListener('click',function(){ activateSampleTab(tab,false); setSampleHash(tab.getAttribute('data-sample-tab')); });
     tab.addEventListener('keydown',function(e){
       var next=null;
       if(e.key==='ArrowRight') next=sampleTabs[(idx+1)%sampleTabs.length];
       if(e.key==='ArrowLeft') next=sampleTabs[(idx-1+sampleTabs.length)%sampleTabs.length];
-      if(next){ e.preventDefault(); activateSampleTab(next,true); }
+      if(next){ e.preventDefault(); activateSampleTab(next,true); setSampleHash(next.getAttribute('data-sample-tab')); }
     });
   });
   // Old category anchors map to their tab
   var categoryAnchorMap={'sample-scripts':'scripts','sample-dialogue':'dialogue','sample-fiction':'fiction','sample-rpg':'rpg','sample-narrative':'narrative'};
+  // Shareable links for each Samples category tab
+  var sampleHashMap={'samples-scripts':'scripts','samples-dialogue':'dialogue','samples-fiction':'fiction','samples-rpg':'rpg','samples-narrative':'narrative'};
 
   // Copy email
   var copyBtn=document.getElementById('copyEmailBtn');
@@ -1496,6 +1504,22 @@ BLACKS OUT.
       goToSampleTarget(ptarget);
     }
   }
+
+  // Shareable Samples tab links: #samples-<category> opens that category
+  function sampleKeyFromHash(){
+    if(!window.location || !window.location.hash) return null;
+    return sampleHashMap[window.location.hash.slice(1)] || null;
+  }
+  var initialSampleKey=sampleKeyFromHash();
+  if(initialSampleKey){
+    activateSampleCategory(initialSampleKey,false);
+    var samplesSection=document.getElementById('samples');
+    if(samplesSection) samplesSection.scrollIntoView();
+  }
+  window.addEventListener('hashchange',function(){
+    var key=sampleKeyFromHash();
+    if(key) activateSampleCategory(key,false);
+  });
 
   // Inquiry form -> mailto
   var form=document.getElementById('inquiryForm');
