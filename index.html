@@ -441,12 +441,15 @@
         <p class="label">How I work</p>
         <h2 id="process-title">Outline first. Milestones throughout.</h2>
         <p>The same discipline on a book, a narrative bible, or a game adventure — so a project never drifts and you are never guessing at progress.</p>
+        <button class="doc-toggle credits-toggle" type="button" aria-expanded="false" aria-controls="processBody" data-show="Show process" data-hide="Hide process">Show process</button>
       </div>
+      <div id="processBody" hidden>
       <div class="steps">
         <div class="step"><div class="step-num">1</div><h3>Conversation</h3><p>Tell me about the project: the story or setting, what material you already have, and what finished looks like.</p></div>
         <div class="step"><div class="step-num">2</div><h3>Outline &amp; voice</h3><p>We agree structure and voice before any drafting. For ghostwriting, this is where your voice gets pinned down.</p></div>
         <div class="step"><div class="step-num">3</div><h3>Draft in milestones</h3><p>Writing is delivered in stages against deadlines, with strict version control at every step.</p></div>
         <div class="step"><div class="step-num">4</div><h3>Revision &amp; delivery</h3><p>Revisions against the agreed outline, then final delivery in the format you need — manuscript, ePub, PDF, or publisher files.</p></div>
+      </div>
       </div>
     </div>
   </section>
@@ -1469,6 +1472,32 @@ BLACKS OUT.
       if(htoggle) setReaderOpen(htoggle, true);
     }
   }
+
+  // Collapsible Process section:
+  // auto-expand when a visitor arrives via a nav link or a URL hash pointing at the section
+  var collapsibleHashMap={'process':'processBody'};
+  function expandCollapsible(bodyId){
+    var body=document.getElementById(bodyId);
+    if(!body || !body.hidden) return;
+    var toggle=document.querySelector('.doc-toggle[aria-controls="'+bodyId+'"]');
+    if(toggle) setReaderOpen(toggle, true);
+  }
+  function handleCollapsibleHash(scroll){
+    if(!window.location || !window.location.hash) return;
+    var key=window.location.hash.slice(1);
+    var bodyId=collapsibleHashMap[key];
+    if(!bodyId) return;
+    expandCollapsible(bodyId);
+  }
+  document.querySelectorAll('a[href="#process"]').forEach(function(a){
+    a.addEventListener('click',function(){
+      var key=a.getAttribute('href').slice(1);
+      var bodyId=collapsibleHashMap[key];
+      if(bodyId) expandCollapsible(bodyId);
+    });
+  });
+  window.addEventListener('hashchange',function(){ handleCollapsibleHash(true); });
+  handleCollapsibleHash(true);
 
   // Links into a sample category: switch to that category's tab first, then scroll
   function panelKeyFor(target){
